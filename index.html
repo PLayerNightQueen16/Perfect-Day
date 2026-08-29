@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🛏️ PerfectDay — A Story Tree of Time</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Left Column: Visual Room Backdrop & Clock -->
+    <div class="backdrop-column theme-morning" id="roomBackdrop">
+      <div class="window-frame">
+        <div class="sky">
+          <div class="stars"></div>
+          <div class="sun-moon"></div>
+        </div>
+      </div>
+      <div class="bed-silhouette"></div>
+      <div class="nightstand">
+        <div class="lamp">
+          <div class="lamp-base"></div>
+          <div class="lamp-shade"></div>
+          <div class="lamp-light-cone" id="lampLightCone"></div>
+        </div>
+      </div>
+
+      <!-- Retro digital clock widget sitting on the nightstand -->
+      <div class="clock-widget-container">
+        <div class="digital-clock-frame">
+          <div class="clock-title">System Clock</div>
+          <div class="clock-time-display">
+            <span id="clockHours">06</span><span class="colon-blink">:</span><span id="clockMinutes">00</span><span id="clockPeriod" class="period-indicator">AM</span>
+          </div>
+          <div class="clock-info-panel">
+            <span>Limit: <span class="deadline-badge">2:00 AM</span></span>
+            <span>Sleep: <span class="deadline-badge" style="color: var(--accent-green)">Min 4h</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Gameplay Story Card -->
+    <div class="game-column">
+      <div class="game-header">
+        <div class="game-title">🛏️ PerfectDay</div>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Reach home and get into bed by 2:00 AM. Sleep is not optional.</p>
+        <div class="progress-container">
+          <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+      </div>
+
+      <!-- Main Game Card Area -->
+      <div class="card-content" id="mainCard">
+        <!-- Content injected dynamically by JS -->
+      </div>
+
+      <!-- Story Log Area -->
+      <div class="history-section" id="historySection">
+        <div class="history-title">So far today</div>
+        <ul class="history-log-list" id="historyLog">
+          <!-- Story log injected dynamically -->
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Include the DAG nodes definitions -->
+  <script src="nodes.js"></script>
+
+  <script>
+    const START_CLOCK = 360;      // 6:00 AM in minutes since midnight
+    const BUST_THRESHOLD = 1200;  // 20 hours total elapsed (2:00 AM next day)
+
+    let state = {
+      nodeId: "alarm",
+      elapsed: 0,
+      log: []
+    };
+
+    function fmtTime(totalMin) {
+      totalMin = ((totalMin % 1440) + 1440) % 1440;
+      let h = Math.floor(totalMin / 60);
+      let m = totalMin % 60;
+      let period = h < 12 ? "AM" : "PM";
+      let h12 = h % 12;
+      if (h12 === 0) h12 = 12;
+      return String(h12).padStart(2, "0") + ":" + String(m).padStart(2, "0") + " " + period;
+    }
+
+    function getHourOfDay(elapsed) {
+      let totalMin = START_CLOCK + elapsed;
+      totalMin = ((totalMin % 1440) + 1440) % 1440;
+      return Math.floor(totalMin / 60);
+    }
+
+    function updateBackdropAndClock() {
+      const elapsed = state.elapsed;
+      const totalMinutes = START_CLOCK + elapsed;
+
+      // Update digital clock widget display
+      let displayMin = totalMinutes % 1440;
+      let h = Math.floor(displayMin / 60);
+      let m = displayMin % 60;
+      let period = h < 12 ? "AM" : "PM";
+      let h12 = h % 12;
+      if (h12 === 0) h12 = 12;
+
+      document.getElementById("clockHours").textContent = String(h12).padStart(2, "0");
+      document.getElementById("clockMinutes").textContent = String(m).padStart(2, "0");
+      document.getElementById("clockPeriod").textContent = period;
+
+      // Update progress bar
+      let pct = Math.min(100, (elapsed / BUST_THRESHOLD) * 100);
+      document.getElementById("progressBarFill").style.width = pct + "%";
+
+      // Update room backdrop theme based on hour of day
+      const hour = getHourOfDay(elapsed);
+      const backdrop = document.getElementById("roomBackdrop");
+      backdrop.className = "backdrop-column"; // reset
+
+      if (hour >= 6 && hour < 12) {
+        backdrop.classList.add("theme-morning");
+      } else if (hour >= 12 && hour < 17) {
+        backdrop.classList.add("theme-afternoon");
+      } else if (hour >= 17 && hour < 20) {
+        backdrop.classList.add("theme-evening");
+      } else if (hour >= 20 && hour <= 23) {
+        backdrop.classList.add("theme-night");
+      } else {
+        // hour is between 0 and 5
+        backdrop.classList.add("theme-midnight");
+      }
+    }
+
+    function getStageLabel(nodeId) {
+      if (nodeId === 'alarm') return "6:00 AM — Morning Alarm";
+      if (nodeId.startsWith('snooze') || nodeId.startsWith('workout') || nodeId.startsWith('doomscroll')) return "Early Morning Routine";
+      if (nodeId.startsWith('overslept') || nodeId.startsWith('coffee') || nodeId.startsWith('breakfast')) return "Breakfast Hour";
+      if (nodeId.startsWith('morning_work') || nodeId.startsWith('morning_commute') || nodeId.startsWith('morning_study')) return "Morning Tasks";
+      if (nodeId.startsWith('office_work') || nodeId.startsWith('midday_errands')) return "Midday Hours";
+      if (nodeId.startsWith('lunch')) return "Lunch Break";
+      if (nodeId.startsWith('afternoon_slump')) return "Afternoon Slump";
+      if (nodeId.startsWith('afternoon_work') || nodeId.startsWith('afternoon_creative') || nodeId.startsWith('afternoon_gaming')) return "Late Afternoon Tasks";
+      if (nodeId.startsWith('evening')) return "Sunset Hour";
+      if (nodeId.startsWith('dinner')) return "Dinner Time";
+      if (nodeId.startsWith('night_')) return "Night Entertainment";
+      if (nodeId.startsWith('late_night')) return "Late Night Wind Down";
+      if (nodeId.startsWith('midnight_')) return "Midnight Hours";
+      if (nodeId.startsWith('final_')) return "Bedtime Preparation";
+      if (nodeId === 'absolute_limit') return "The Absolute Limit";
+      return "Game Progress";
+    }
+
+    function render() {
+      updateBackdropAndClock();
+      
+      const card = document.getElementById("mainCard");
+      const historyLog = document.getElementById("historyLog");
+      const historySection = document.getElementById("historySection");
+      
+      // Update history list
+      if (state.log.length === 0) {
+        historySection.style.display = "none";
+      } else {
+        historySection.style.display = "block";
+        historyLog.innerHTML = state.log.map(s => `<li>${s}</li>`).join("");
+        // Auto scroll to bottom
+        historyLog.scrollTop = historyLog.scrollHeight;
+      }
+
+      const node = storyNodes[state.nodeId];
+      if (!node) {
+        card.innerHTML = `<p class="node-prompt">Error: Node not found!</p>`;
+        return;
+      }
+
+      let html = `
+        <div class="node-segment">${getStageLabel(state.nodeId)}</div>
+        <p class="node-prompt">${node.prompt}</p>
+        <div class="options-list">
+      `;
+
+      node.options.forEach((opt, idx) => {
+        let isBed = opt.bed || opt.ending;
+        let btnClass = "option-btn" + (isBed ? " bed" : "");
+        html += `
+          <button class="${btnClass}" onclick="choose(${idx})">
+            <span>${isBed ? "🛏️ " : ""}${opt.label}</span>
+            <span class="btn-duration">+${opt.minutes}m</span>
+          </button>
+        `;
+      });
+
+      html += `</div>`;
+      card.innerHTML = html;
+    }
+
+    function choose(idx) {
+      const node = storyNodes[state.nodeId];
+      const opt = node.options[idx];
+
+      state.elapsed += opt.minutes;
+      state.log.push(opt.story);
+
+      if (opt.ending || opt.bed) {
+        if (state.elapsed <= BUST_THRESHOLD) {
+          showEnding();
+        } else {
+          showBusted();
+        }
+        return;
+      }
+
+      if (state.elapsed >= BUST_THRESHOLD) {
+        showBusted();
+        return;
+      }
+
+      state.nodeId = opt.next;
+      render();
+    }
+
+    function showEnding() {
+      updateBackdropAndClock();
+      const card = document.getElementById("mainCard");
+      const historySection = document.getElementById("historySection");
+      historySection.style.display = "none";
+
+      const bedtimeStr = fmtTime(START_CLOCK + state.elapsed);
+      card.innerHTML = `
+        <div class="ending-wrapper">
+          <div class="ending-title good">🌙 Perfect Day Completed!</div>
+          <div class="ending-body">
+            <p><strong>Your day in summary:</strong></p>
+            <p style="margin: 10px 0; line-height: 1.6;">${state.log.join(" ")}</p>
+            <p>You made it home, brushed your teeth, turned out the lights, and actually went to bed at <strong>${bedtimeStr}</strong>.</p>
+            <p class="ending-quote">No day is perfect, yet every day is beautiful.</p>
+          </div>
+          <button class="restart-btn" onclick="restart()">↻ Live another day</button>
+        </div>
+      `;
+    }
+
+    function showBusted() {
+      const card = document.getElementById("mainCard");
+      const historySection = document.getElementById("historySection");
+      historySection.style.display = "none";
+
+      // Force background to midnight style
+      const backdrop = document.getElementById("roomBackdrop");
+      backdrop.className = "backdrop-column theme-midnight";
+      document.getElementById("clockHours").textContent = "02";
+      document.getElementById("clockMinutes").textContent = "00";
+      document.getElementById("clockPeriod").textContent = "AM";
+      document.getElementById("progressBarFill").style.width = "100%";
+
+      card.innerHTML = `
+        <div class="ending-wrapper">
+          <div class="ending-title bad">💥 Schedule Overrun!</div>
+          <div class="ending-body">
+            <p><strong>What led here:</strong></p>
+            <p style="margin: 10px 0; line-height: 1.6;">${state.log.join(" ")}</p>
+            <p class="ending-quote bad">You had a bad schedule! You never made it home and into bed in time. Fix it, try again!!</p>
+          </div>
+          <button class="restart-btn bad" onclick="restart()">↻ Try again from 6:00 AM</button>
+        </div>
+      `;
+    }
+
+    function restart() {
+      state = {
+        nodeId: "alarm",
+        elapsed: 0,
+        log: []
+      };
+      render();
+    }
+
+    // Start game
+    render();
+  </script>
+</body>
+</html>
