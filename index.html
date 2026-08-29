@@ -2,68 +2,71 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🛏️ PerfectDay — A Story Tree of Time</title>
+  <title>🛏️ PerfectDay — Fullscreen Cozy Fantasy Adventure</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="app-container">
-    <!-- Left Column: Visual Room Backdrop & Clock -->
-    <div class="backdrop-column theme-morning" id="roomBackdrop">
-      <div class="window-frame">
-        <div class="sky">
-          <div class="stars"></div>
-          <div class="sun-moon"></div>
-        </div>
-      </div>
-      <div class="bed-silhouette"></div>
-      <div class="nightstand">
-        <div class="lamp">
-          <div class="lamp-base"></div>
-          <div class="lamp-shade"></div>
-          <div class="lamp-light-cone" id="lampLightCone"></div>
-        </div>
-      </div>
+  <!-- Fullscreen Bedroom Backdrop Layers -->
+  <div class="backdrop-layer theme-morning active" id="backdrop-morning"></div>
+  <div class="backdrop-layer theme-afternoon" id="backdrop-afternoon"></div>
+  <div class="backdrop-layer theme-evening" id="backdrop-evening"></div>
+  <div class="backdrop-layer theme-night" id="backdrop-night"></div>
+  <div class="backdrop-layer theme-midnight" id="backdrop-midnight"></div>
 
-      <!-- Retro digital clock widget sitting on the nightstand -->
-      <div class="clock-widget-container">
-        <div class="digital-clock-frame">
-          <div class="clock-title">System Clock</div>
-          <div class="clock-time-display">
-            <span id="clockHours">06</span><span class="colon-blink">:</span><span id="clockMinutes">00</span><span id="clockPeriod" class="period-indicator">AM</span>
-          </div>
-          <div class="clock-info-panel">
-            <span>Limit: <span class="deadline-badge">2:00 AM</span></span>
-            <span>Sleep: <span class="deadline-badge" style="color: var(--accent-green)">Min 4h</span></span>
-          </div>
-        </div>
+  <!-- Floating HUD: Celestial Clock -->
+  <div class="clock-widget-container">
+    <div class="digital-clock-frame">
+      <div class="clock-title">Celestial Time</div>
+      <div class="clock-time-display">
+        <span id="clockHours">06</span><span class="colon-blink">:</span><span id="clockMinutes">00</span><span id="clockPeriod" class="period-indicator">AM</span>
+      </div>
+      <div class="clock-info-panel">
+        <span>Curfew: <span class="deadline-badge">2:00 AM</span></span>
+        <span>Sleep: <span class="deadline-badge" style="color: var(--accent-green)">Min 4h</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating HUD: Persistent "Sleep Now" FAB -->
+  <button id="sleepNowBtn" class="sleep-fab-btn" onclick="sleepNow()" title="Go to sleep immediately">
+    <span class="fab-icon">🌙</span>
+    <span class="fab-text">Sleep Now</span>
+  </button>
+
+  <!-- Centered Game Card -->
+  <div class="game-card">
+    <div class="game-header">
+      <div class="game-title">✨ PerfectDay</div>
+      <p class="game-subtitle">Reach home & get into bed by 2:00 AM. Balance is everything.</p>
+      <div class="progress-container">
+        <div class="progress-bar-fill" id="progressBarFill"></div>
       </div>
     </div>
 
-    <!-- Right Column: Gameplay Story Card -->
-    <div class="game-column">
-      <div class="game-header">
-        <div class="game-title">🛏️ PerfectDay</div>
-        <p style="font-size: 0.8rem; color: var(--text-muted);">Reach home and get into bed by 2:00 AM. Sleep is not optional.</p>
-        <div class="progress-container">
-          <div class="progress-bar-fill" id="progressBarFill"></div>
-        </div>
-      </div>
-
-      <!-- Main Game Card Area -->
-      <div class="card-content" id="mainCard">
-        <!-- Content injected dynamically by JS -->
-      </div>
-
-      <!-- Story Log Area -->
-      <div class="history-section" id="historySection">
-        <div class="history-title">So far today</div>
-        <ul class="history-log-list" id="historyLog">
-          <!-- Story log injected dynamically -->
-        </ul>
-      </div>
+    <!-- Main Game Card Area -->
+    <div class="card-content" id="mainCard">
+      <!-- Injected dynamically -->
     </div>
+  </div>
+
+  <!-- Done So Far (Center Bottom) -->
+  <div class="history-section" id="historySection">
+    <div class="history-title">Your Day So Far</div>
+    <ul class="history-log-list" id="historyLog">
+      <!-- Injected dynamically -->
+    </ul>
+  </div>
+
+  <!-- Magic Particles for Fantasy Vibe -->
+  <div class="magic-particles">
+    <div class="sparkle sp-1"></div>
+    <div class="sparkle sp-2"></div>
+    <div class="sparkle sp-3"></div>
+    <div class="sparkle sp-4"></div>
+    <div class="sparkle sp-5"></div>
+    <div class="sparkle sp-6"></div>
   </div>
 
   <!-- Include the DAG nodes definitions -->
@@ -78,6 +81,66 @@
       elapsed: 0,
       log: []
     };
+
+    // Mapping of node ID to character state
+    const stateMap = {
+      alarm: 'sleeping',
+      snooze_1: 'sleeping',
+      workout_morning: 'exercising',
+      doomscroll_morning: 'scrolling',
+      overslept: 'exhausted',
+      morning_coffee: 'eating',
+      breakfast_healthy: 'eating',
+      breakfast_quick: 'eating',
+      breakfast_relaxed: 'eating',
+      morning_work_focus: 'working',
+      morning_commute: 'scrolling',
+      morning_study_distracted: 'scrolling',
+      office_work: 'working',
+      midday_errands: 'exercising',
+      lunch_healthy: 'eating',
+      lunch_cheat: 'eating',
+      lunch_cook_home: 'eating',
+      afternoon_slump_active: 'working',
+      afternoon_slump_lazy: 'scrolling',
+      afternoon_slump_comatose: 'exhausted',
+      afternoon_work_push: 'working',
+      afternoon_creative: 'working',
+      afternoon_gaming: 'scrolling',
+      evening_stroll: 'exercising',
+      evening_social: 'eating',
+      evening_coding: 'working',
+      dinner_healthy: 'eating',
+      dinner_order_in: 'eating',
+      dinner_dine_out: 'eating',
+      night_movie: 'stargazing',
+      night_reading: 'stargazing',
+      night_coding_project: 'working',
+      night_social_party: 'eating',
+      late_night_tea: 'eating',
+      late_night_chat: 'scrolling',
+      late_night_stargazing: 'stargazing',
+      late_night_existential: 'exhausted',
+      midnight_meditation: 'exercising',
+      midnight_snack_run: 'eating',
+      midnight_doomscroll: 'scrolling',
+      midnight_existential_spiral: 'exhausted',
+      final_bedtime_prep: 'working',
+      final_stiff_back: 'exercising',
+      final_sugar_rush: 'exercising',
+      final_insomnia_panic: 'exhausted',
+      absolute_limit: 'exhausted'
+    };
+
+    function isStage8Plus(nodeId) {
+      return nodeId.startsWith('evening') || 
+             nodeId.startsWith('dinner') || 
+             nodeId.startsWith('night') || 
+             nodeId.startsWith('late_night') || 
+             nodeId.startsWith('midnight') || 
+             nodeId.startsWith('final') || 
+             nodeId === 'absolute_limit';
+    }
 
     function fmtTime(totalMin) {
       totalMin = ((totalMin % 1440) + 1440) % 1440;
@@ -117,21 +180,35 @@
 
       // Update room backdrop theme based on hour of day
       const hour = getHourOfDay(elapsed);
-      const backdrop = document.getElementById("roomBackdrop");
-      backdrop.className = "backdrop-column"; // reset
-
+      let activeTheme = "morning";
+      
       if (hour >= 6 && hour < 12) {
-        backdrop.classList.add("theme-morning");
+        activeTheme = "morning";
       } else if (hour >= 12 && hour < 17) {
-        backdrop.classList.add("theme-afternoon");
+        activeTheme = "afternoon";
       } else if (hour >= 17 && hour < 20) {
-        backdrop.classList.add("theme-evening");
+        activeTheme = "evening";
       } else if (hour >= 20 && hour <= 23) {
-        backdrop.classList.add("theme-night");
+        activeTheme = "night";
       } else {
-        // hour is between 0 and 5
-        backdrop.classList.add("theme-midnight");
+        activeTheme = "midnight";
       }
+
+      // Update body theme class so all components can sync their variables
+      document.body.className = `theme-${activeTheme}`;
+
+      // Update backdrop layer active class for hardware-accelerated cross-fades
+      const themes = ["morning", "afternoon", "evening", "night", "midnight"];
+      themes.forEach(t => {
+        const layer = document.getElementById(`backdrop-${t}`);
+        if (layer) {
+          if (t === activeTheme) {
+            layer.classList.add("active");
+          } else {
+            layer.classList.remove("active");
+          }
+        }
+      });
     }
 
     function getStageLabel(nodeId) {
@@ -166,8 +243,17 @@
       } else {
         historySection.style.display = "block";
         historyLog.innerHTML = state.log.map(s => `<li>${s}</li>`).join("");
-        // Auto scroll to bottom
         historyLog.scrollTop = historyLog.scrollHeight;
+      }
+
+      // Check sleep button state
+      const sleepBtn = document.getElementById("sleepNowBtn");
+      if (sleepBtn) {
+        if (isStage8Plus(state.nodeId)) {
+          sleepBtn.classList.add("visible");
+        } else {
+          sleepBtn.classList.remove("visible");
+        }
       }
 
       const node = storyNodes[state.nodeId];
@@ -222,8 +308,32 @@
       render();
     }
 
+    function sleepNow() {
+      // Transition to bed immediately
+      state.elapsed += 15;
+      state.log.push("You decided to wrap up your activities and went straight to bed.");
+      
+      const sleepBtn = document.getElementById("sleepNowBtn");
+      if (sleepBtn) sleepBtn.classList.remove("visible");
+
+      if (state.elapsed <= BUST_THRESHOLD) {
+        showEnding();
+      } else {
+        showBusted();
+      }
+    }
+
+    function getCharacterStatus(nodeId) {
+      if (nodeId.includes("stiff_back")) return "Aching Back 🦴";
+      if (nodeId.includes("sugar_rush")) return "Sugar Charged ⚡";
+      if (nodeId.includes("insomnia_panic")) return "Overthinking 🌀";
+      if (nodeId === "absolute_limit") return "Exhausted 💤";
+      return "Balanced & Cozy 🧸";
+    }
+
     function showEnding() {
       updateBackdropAndClock();
+      
       const card = document.getElementById("mainCard");
       const historySection = document.getElementById("historySection");
       historySection.style.display = "none";
@@ -231,13 +341,36 @@
       const bedtimeStr = fmtTime(START_CLOCK + state.elapsed);
       card.innerHTML = `
         <div class="ending-wrapper">
-          <div class="ending-title good">🌙 Perfect Day Completed!</div>
-          <div class="ending-body">
-            <p><strong>Your day in summary:</strong></p>
-            <p style="margin: 10px 0; line-height: 1.6;">${state.log.join(" ")}</p>
-            <p>You made it home, brushed your teeth, turned out the lights, and actually went to bed at <strong>${bedtimeStr}</strong>.</p>
-            <p class="ending-quote">No day is perfect, yet every day is beautiful.</p>
+          <div class="ending-crest success-crest">🌙✨</div>
+          <div class="ending-title good">Perfect Day Completed!</div>
+          
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-icon">⏰</span>
+              <span class="stat-label">Bedtime</span>
+              <span class="stat-value">${bedtimeStr}</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon">🧭</span>
+              <span class="stat-label">Activities Done</span>
+              <span class="stat-value">${state.log.length} events</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon">🔋</span>
+              <span class="stat-label">Final Status</span>
+              <span class="stat-value">${getCharacterStatus(state.nodeId)}</span>
+            </div>
           </div>
+
+          <div class="ending-body">
+            <div class="diary-title">📜 Daily Log</div>
+            <ul class="diary-list">
+              ${state.log.map(item => `<li><span class="diary-bullet">✦</span> <span>${item}</span></li>`).join("")}
+            </ul>
+            <p class="ending-info">You successfully made it home, brushed your teeth, turned out the lights, and went to bed before curfew.</p>
+            <div class="ending-quote">"No day is perfect, yet every day is beautiful."</div>
+          </div>
+          
           <button class="restart-btn" onclick="restart()">↻ Live another day</button>
         </div>
       `;
@@ -249,8 +382,19 @@
       historySection.style.display = "none";
 
       // Force background to midnight style
-      const backdrop = document.getElementById("roomBackdrop");
-      backdrop.className = "backdrop-column theme-midnight";
+      document.body.className = "theme-midnight";
+      const layers = ["morning", "afternoon", "evening", "night", "midnight"];
+      layers.forEach(t => {
+        const layer = document.getElementById(`backdrop-${t}`);
+        if (layer) {
+          if (t === "midnight") {
+            layer.classList.add("active");
+          } else {
+            layer.classList.remove("active");
+          }
+        }
+      });
+
       document.getElementById("clockHours").textContent = "02";
       document.getElementById("clockMinutes").textContent = "00";
       document.getElementById("clockPeriod").textContent = "AM";
@@ -258,12 +402,36 @@
 
       card.innerHTML = `
         <div class="ending-wrapper">
-          <div class="ending-title bad">💥 Schedule Overrun!</div>
-          <div class="ending-body">
-            <p><strong>What led here:</strong></p>
-            <p style="margin: 10px 0; line-height: 1.6;">${state.log.join(" ")}</p>
-            <p class="ending-quote bad">You had a bad schedule! You never made it home and into bed in time. Fix it, try again!!</p>
+          <div class="ending-crest fail-crest">⏳💥</div>
+          <div class="ending-title bad">Schedule Overrun!</div>
+          
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-icon">⏰</span>
+              <span class="stat-label">Curfew Status</span>
+              <span class="stat-value" style="color: var(--accent-rose)">MISSED!</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon">🧭</span>
+              <span class="stat-label">Activities Done</span>
+              <span class="stat-value">${state.log.length} events</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon">🔋</span>
+              <span class="stat-label">Final Status</span>
+              <span class="stat-value" style="color: var(--accent-rose)">Exhausted 💤</span>
+            </div>
           </div>
+
+          <div class="ending-body">
+            <div class="diary-title warning">📜 Journey Path</div>
+            <ul class="diary-list">
+              ${state.log.map(item => `<li><span class="diary-bullet warning">✦</span> <span>${item}</span></li>`).join("")}
+            </ul>
+            <p class="ending-info warning">Curfew is strictly at <strong>2:00 AM</strong>. You got carried away and didn't make it to bed in time.</p>
+            <div class="ending-quote bad">"Time slips away like water, and curfew waits for no one."</div>
+          </div>
+          
           <button class="restart-btn bad" onclick="restart()">↻ Try again from 6:00 AM</button>
         </div>
       `;

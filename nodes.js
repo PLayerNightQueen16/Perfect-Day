@@ -14,12 +14,6 @@ const storyNodes = {
         story: "You slapped the snooze button. Just a few more minutes in heaven won't hurt.",
         minutes: 45,
         next: "snooze_1"
-      },
-      {
-        label: "Check your phone 'just for a second'",
-        story: "You reached for your phone to check the time, but got instantly sucked into social media notifications.",
-        minutes: 60,
-        next: "doomscroll_morning"
       }
     ]
   },
@@ -35,10 +29,10 @@ const storyNodes = {
         next: "morning_coffee"
       },
       {
-        label: "Sleep for another hour",
-        story: "You shut off the alarm completely and went back to sleep, entering the danger zone.",
-        minutes: 90,
-        next: "overslept"
+        label: "Ignore the alarm and check your phone",
+        story: "You reached for your phone to check the time, but got instantly sucked into social media notifications.",
+        minutes: 45,
+        next: "doomscroll_morning"
       }
     ]
   },
@@ -412,7 +406,7 @@ const storyNodes = {
     ]
   },
 
-  // === STAGE 8: Sunset & Evening (6:00 PM - 8:30 PM) [BED INCLUDED] ===
+  // === STAGE 8: Sunset & Evening (6:00 PM - 8:30 PM) ===
   evening_stroll: {
     prompt: "The sun is starting to set, casting a warm orange glow across the room. What's next?",
     options: [
@@ -427,14 +421,6 @@ const storyNodes = {
         story: "You browsed the shelves of a small bookstore and bought a sci-fi novel and a fancy bookmark.",
         minutes: 90,
         next: "dinner_order_in"
-      },
-      {
-        label: "Brush your teeth and go to bed early",
-        story: "You decided your day was complete. You had a warm shower, brushed your teeth, and crawled under the covers.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -452,14 +438,6 @@ const storyNodes = {
         story: "You joined a local board game meet. You learned a complex strategy game and accidentally won.",
         minutes: 120,
         next: "dinner_dine_out"
-      },
-      {
-        label: "Brush your teeth and go to bed early",
-        story: "You decided to skip evening plans. You washed up, turned off the lights, and went to bed.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -477,19 +455,11 @@ const storyNodes = {
         story: "You spent over two hours trying to center a div. It involved three compiler errors and a lot of sighing.",
         minutes: 150,
         next: "dinner_healthy"
-      },
-      {
-        label: "Brush your teeth and go to bed early",
-        story: "You closed your laptop, decided work could wait, brushed your teeth, and went to sleep.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
 
-  // === STAGE 9: Dinner (7:30 PM - 10:30 PM) [BED INCLUDED] ===
+  // === STAGE 9: Dinner (7:30 PM - 10:30 PM) ===
   dinner_healthy: {
     prompt: "It's dinner time. You want to eat something simple.",
     options: [
@@ -504,14 +474,6 @@ const storyNodes = {
         story: "You simmered a warm, comforting broth with vegetables. Cozy and light.",
         minutes: 60,
         next: "night_reading"
-      },
-      {
-        label: "Change into pajamas and go to sleep",
-        story: "You skipped dinner, put on your softest pajamas, and went straight to bed.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -529,14 +491,6 @@ const storyNodes = {
         story: "You ordered a pizza. You ate three slices immediately while watching the delivery tracking map.",
         minutes: 60,
         next: "night_movie"
-      },
-      {
-        label: "Change into pajamas and go to sleep",
-        story: "You decided you were too tired to even wait for delivery. You drank a glass of water and went to bed.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -554,19 +508,11 @@ const storyNodes = {
         story: "You stayed at the cafe, ordering pasta and talking for two hours. Good food, great company.",
         minutes: 120,
         next: "night_reading"
-      },
-      {
-        label: "Catch a cab home and go straight to bed",
-        story: "You said your goodbyes, took a cab home, brushed your teeth, and immediately fell asleep.",
-        minutes: 30,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
 
-  // === STAGE 10: Night Entertainment (9:00 PM - 12:30 AM) [BED INCLUDED] ===
+  // === STAGE 10: Night Entertainment (9:00 PM - 12:30 AM) ===
   night_movie: {
     prompt: "It's late evening. The room is dark. How are you relaxing?",
     options: [
@@ -581,14 +527,6 @@ const storyNodes = {
         story: "You watched people argue on a beach. Zero brainpower required, highly entertaining.",
         minutes: 90,
         next: "late_night_chat"
-      },
-      {
-        label: "Turn off the TV and go to bed",
-        story: "You decided you were too tired for screens. You shut down the system and went to bed.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -606,14 +544,6 @@ const storyNodes = {
         story: "You started reading about ancient Rome and somehow ended up reading about the history of the spork.",
         minutes: 120,
         next: "late_night_existential"
-      },
-      {
-        label: "Put the book down and sleep",
-        story: "Your eyes started watering. You put the book on the nightstand and drifted to sleep.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -631,14 +561,6 @@ const storyNodes = {
         story: "You cleaned up your CSS class names and organized colors. Satisfying, but took way longer than expected.",
         minutes: 150,
         next: "late_night_existential"
-      },
-      {
-        label: "Close the editor and go to sleep",
-        story: "You saved your files, shut down the laptop, brushed your teeth, and slept.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -656,19 +578,11 @@ const storyNodes = {
         story: "You drank mocktails and looked at the city skyline lights from the rooftop. Very peaceful.",
         minutes: 120,
         next: "late_night_stargazing"
-      },
-      {
-        label: "Call it a night, head home to bed",
-        story: "You decided to be responsible, took a cab home, washed up, and went to bed.",
-        minutes: 30,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
 
-  // === STAGE 11: Late Night Wind-down (10:30 PM - 2:00 AM) [BED INCLUDED] ===
+  // === STAGE 11: Late Night Wind-down (10:30 PM - 2:00 AM) ===
   late_night_tea: {
     prompt: "It's late. You are in your room. How are you winding down?",
     options: [
@@ -683,14 +597,6 @@ const storyNodes = {
         story: "You mixed chocolate chips and cookie dough, filling the house with a delicious sweet aroma.",
         minutes: 90,
         next: "midnight_snack_run"
-      },
-      {
-        label: "Crawl into bed and sleep",
-        story: "You climbed into bed, pulled the heavy duvet over your shoulders, and slept.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -708,14 +614,6 @@ const storyNodes = {
         story: "You sent funny memes to your friends, laughing alone in the dark room.",
         minutes: 60,
         next: "midnight_doomscroll"
-      },
-      {
-        label: "Put the phone away and sleep",
-        story: "You plugged in your phone, put it on the table, closed your eyes, and slept.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -733,14 +631,6 @@ const storyNodes = {
         story: "You opened a sky-mapping app and pointed it at the sky, learning about Ursa Major.",
         minutes: 75,
         next: "midnight_doomscroll"
-      },
-      {
-        label: "Head inside and go to sleep",
-        story: "You locked the balcony door, brushed your teeth, and slipped into bed.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -758,19 +648,11 @@ const storyNodes = {
         story: "You wrote three pages of messy handwriting in your journal, clearing your mind.",
         minutes: 60,
         next: "midnight_meditation"
-      },
-      {
-        label: "Stop thinking and just close your eyes to sleep",
-        story: "You forced yourself to stop thinking, took a deep breath, and fell asleep.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
 
-  // === STAGE 12: Midnight Hours (12:00 AM - 3:00 AM) [BED INCLUDED] ===
+  // === STAGE 12: Midnight Hours (12:00 AM - 3:00 AM) ===
   midnight_meditation: {
     prompt: "It is past midnight. The house is completely dark and silent. You should really sleep.",
     options: [
@@ -785,14 +667,6 @@ const storyNodes = {
         story: "Your eyes closed mid-meditation. You slept on the floor, waking up with a stiff neck.",
         minutes: 90,
         next: "final_stiff_back"
-      },
-      {
-        label: "Roll onto the pillow and sleep",
-        story: "You crawled the short distance to your pillow and immediately blacked out.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -810,14 +684,6 @@ const storyNodes = {
         story: "You stood in the light of the open fridge, eating sliced cheese like a raccoon.",
         minutes: 45,
         next: "final_bedtime_prep"
-      },
-      {
-        label: "Ignore the hunger and sleep",
-        story: "You ignored your stomach's protests, drank a glass of water, and slept.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -835,14 +701,6 @@ const storyNodes = {
         story: "You watched a 45-minute review of a high-end espresso machine. Fascinating but useless.",
         minutes: 75,
         next: "final_sugar_rush"
-      },
-      {
-        label: "Lock the phone and go to sleep",
-        story: "You threw the phone to the foot of the bed, shut your eyes, and slept.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -860,19 +718,11 @@ const storyNodes = {
         story: "You watched old theme songs on YouTube, feeling a warm wave of nostalgia.",
         minutes: 60,
         next: "final_bedtime_prep"
-      },
-      {
-        label: "Force yourself to go to sleep",
-        story: "You put a pillow over your head to silence your brain and finally drifted off.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
 
-  // === STAGE 13: Final Bedtime Prep (1:00 AM - 4:00 AM) [BED INCLUDED] ===
+  // === STAGE 13: Final Bedtime Prep (1:00 AM - 4:00 AM) ===
   final_bedtime_prep: {
     prompt: "It's incredibly late. You are running out of time before the 2 AM cutoff.",
     options: [
@@ -887,14 +737,6 @@ const storyNodes = {
         story: "You neatly laid out your shirt and trousers, trying to pretend you have your life together.",
         minutes: 60,
         next: "absolute_limit"
-      },
-      {
-        label: "Collapse onto the mattress and sleep",
-        story: "You tumbled onto the mattress, fully clothed, and instantly passed out.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -912,14 +754,6 @@ const storyNodes = {
         story: "You did a gentle stretch, hearing several satisfying pops from your spine.",
         minutes: 60,
         next: "absolute_limit"
-      },
-      {
-        label: "Close your eyes right there and sleep",
-        story: "You gave up, adjusted your pillow on the mattress, and fell asleep.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -937,14 +771,6 @@ const storyNodes = {
         story: "You lay starfished on the bed, staring at the ceiling waiting for the crash.",
         minutes: 45,
         next: "absolute_limit"
-      },
-      {
-        label: "Force yourself to lie still and sleep",
-        story: "You closed your eyes, breathed slowly, and eventually fell asleep.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -962,14 +788,6 @@ const storyNodes = {
         story: "You read about memory allocation algorithms. It worked. Your eyes crossed.",
         minutes: 75,
         next: "absolute_limit"
-      },
-      {
-        label: "Close your eyes and pray for sleep",
-        story: "You shut your eyes tight, took deep slow breaths, and fell asleep.",
-        minutes: 15,
-        next: "END_success",
-        ending: true,
-        bed: true
       }
     ]
   },
@@ -981,6 +799,14 @@ const storyNodes = {
       {
         label: "Pass out from sheer exhaustion",
         story: "Your brain pulled the plug. You passed out on the spot, sinking into a deep sleep.",
+        minutes: 15,
+        next: "END_success",
+        ending: true,
+        bed: true
+      },
+      {
+        label: "Crawl into bed half-asleep",
+        story: "You dragged your heavy body into bed just as your eyes closed, successfully completing your day.",
         minutes: 15,
         next: "END_success",
         ending: true,
