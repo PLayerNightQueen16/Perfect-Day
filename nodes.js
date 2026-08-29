@@ -737,6 +737,13 @@ const storyNodes = {
         story: "You neatly laid out your shirt and trousers, trying to pretend you have your life together.",
         minutes: 60,
         next: "absolute_limit"
+      },
+      {
+        label: "Screw it, fall asleep on the living room rug",
+        story: "You collapsed on the soft rug in the living room, too tired to make the trip to the bedroom.",
+        minutes: 15,
+        ending: true,
+        bed: false
       }
     ]
   },
@@ -754,6 +761,13 @@ const storyNodes = {
         story: "You did a gentle stretch, hearing several satisfying pops from your spine.",
         minutes: 60,
         next: "absolute_limit"
+      },
+      {
+        label: "Sleep on the cold kitchen floor next to the stove",
+        story: "You curled up on the cold kitchen floor next to the stove, seeking its fading warmth.",
+        minutes: 15,
+        ending: true,
+        bed: false
       }
     ]
   },
@@ -771,6 +785,13 @@ const storyNodes = {
         story: "You lay starfished on the bed, staring at the ceiling waiting for the crash.",
         minutes: 45,
         next: "absolute_limit"
+      },
+      {
+        label: "Work through the night on your project",
+        story: "Fueled by sugar and bad decisions, you coded until the sun came up, never sleeping.",
+        minutes: 120,
+        ending: true,
+        bed: false
       }
     ]
   },
@@ -788,6 +809,13 @@ const storyNodes = {
         story: "You read about memory allocation algorithms. It worked. Your eyes crossed.",
         minutes: 75,
         next: "absolute_limit"
+      },
+      {
+        label: "Give up and sleep sitting upright on the sofa",
+        story: "Defeated by insomnia, you slumped onto the sofa and fell asleep sitting upright.",
+        minutes: 30,
+        ending: true,
+        bed: false
       }
     ]
   },
@@ -797,12 +825,11 @@ const storyNodes = {
     prompt: "You are barely conscious. Your brain is shutting down.",
     options: [
       {
-        label: "Pass out from sheer exhaustion",
-        story: "Your brain pulled the plug. You passed out on the spot, sinking into a deep sleep.",
+        label: "Pass out cold on the floor",
+        story: "Your brain pulled the plug. You collapsed and passed out cold on the floor.",
         minutes: 15,
-        next: "END_success",
         ending: true,
-        bed: true
+        bed: false
       },
       {
         label: "Crawl into bed half-asleep",

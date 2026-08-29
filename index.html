@@ -26,6 +26,9 @@
         <span>Curfew: <span class="deadline-badge">2:00 AM</span></span>
         <span>Sleep: <span class="deadline-badge" style="color: var(--accent-green)">Min 4h</span></span>
       </div>
+      <div id="lateMessage" class="late-warning-message" style="display: none;">
+        ⚠️ You are officially late.
+      </div>
     </div>
   </div>
 
@@ -40,8 +43,18 @@
     <div class="game-header">
       <div class="game-title">✨ PerfectDay</div>
       <p class="game-subtitle">Reach home & get into bed by 2:00 AM. Balance is everything.</p>
-      <div class="progress-container">
-        <div class="progress-bar-fill" id="progressBarFill"></div>
+      
+      <!-- Custom Timeline Bar -->
+      <div class="time-bar-widget">
+        <div class="time-bar-labels">
+          <span class="label-start">☀️ 06:00 AM</span>
+          <span class="label-end">🌙 02:00 AM</span>
+        </div>
+        <div class="time-bar-track-wrapper">
+          <div class="progress-container">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -79,7 +92,15 @@
     let state = {
       nodeId: "alarm",
       elapsed: 0,
-      log: []
+      log: [],
+      history: [],
+      variables: {
+        caffeine: false,
+        exhaustion: 0,
+        productivity: 0,
+        social: 0,
+        relaxation: 0
+      }
     };
 
     // Mapping of node ID to character state
@@ -132,6 +153,206 @@
       absolute_limit: 'exhausted'
     };
 
+    const emojiMap = {
+      "alarm": "⏰",
+      "snooze": "😴",
+      "jog": "🏃",
+      "yoga": "🧘",
+      "phone": "📱",
+      "scroll": "📱",
+      "shower": "🚿",
+      "stretch": "🧘",
+      "coffee": "☕",
+      "toast": "🍞",
+      "oatmeal": "🥣",
+      "protein": "🍫",
+      "maggi": "🍜",
+      "noodles": "🍜",
+      "pancake": "🥞",
+      "eggs": "🍳",
+      "coding": "💻",
+      "code": "💻",
+      "desk": "✍️",
+      "to-do": "📋",
+      "metro": "🚇",
+      "cab": "🚕",
+      "daydream": "💭",
+      "clean": "🧹",
+      "meeting": "👥",
+      "programming": "💻",
+      "grocery": "🛒",
+      "laundry": "🧺",
+      "dry cleaning": "🧺",
+      "salad": "🥗",
+      "wrap": "🌯",
+      "burger": "🍔",
+      "street food": "🍢",
+      "pasta": "🍝",
+      "sandwich": "🥪",
+      "espresso": "☕",
+      "walk": "🚶",
+      "videos": "🎥",
+      "nap": "😴",
+      "stare": "😐",
+      "friend": "📞",
+      "sketch": "🎨",
+      "paint": "🎨",
+      "brainstorm": "💡",
+      "match": "🎮",
+      "rpg": "🎮",
+      "bookstore": "📚",
+      "board game": "🎲",
+      "debug": "🐛",
+      "vegetables": "🥗",
+      "soup": "🥣",
+      "thai": "🍲",
+      "curry": "🍲",
+      "pizza": "🍕",
+      "ramen": "🍜",
+      "cafe": "☕",
+      "movie": "🎬",
+      "tv": "📺",
+      "detective": "🔍",
+      "wikipedia": "🌐",
+      "animation": "✨",
+      "styling": "🎨",
+      "gig": "🎸",
+      "rooftop": "🍹",
+      "tea": "🍵",
+      "cookies": "🍪",
+      "chat": "💬",
+      "memes": "😂",
+      "balcony": "🌌",
+      "constellations": "✨",
+      "journal": "📓",
+      "breathing": "🧘",
+      "snack": "🍕",
+      "store": "🏪",
+      "fridge": "🧀",
+      "cheese": "🧀",
+      "ghost": "👻",
+      "nostalgic": "📺",
+      "cartoon": "📺",
+      "climate": "🌍",
+      "face": "🧼",
+      "teeth": "🪥",
+      "clothes": "👔",
+      "rug": "🛋️",
+      "stove": "🔥",
+      "kitchen": "🍳",
+      "sofa": "🛋️",
+      "bed": "🛏️",
+      "sleep": "🛌"
+    };
+
+    const overrides = {
+      "Screw it, fall asleep on the living room rug": "Fell asleep on the living room rug",
+      "Sleep on the cold kitchen floor next to the stove": "Slept on the cold kitchen floor next to the stove",
+      "Give up and sleep sitting upright on the sofa": "Slept sitting upright on the sofa",
+      "Pass out cold on the floor": "Passed out cold on the floor"
+    };
+
+    function toPastTense(str) {
+      if (!str) return "";
+      const words = str.split(" ");
+      const firstWord = words[0];
+      const firstWordLower = firstWord.toLowerCase();
+      
+      const verbMap = {
+        "jump": "Jumped",
+        "snooze": "Snoozed",
+        "drag": "Dragged",
+        "ignore": "Ignored",
+        "go": "Went",
+        "do": "Did",
+        "throw": "Threw",
+        "keep": "Kept",
+        "rush": "Rushed",
+        "take": "Took",
+        "brew": "Brewed",
+        "gulp": "Gulped",
+        "prepare": "Prepared",
+        "eat": "Ate",
+        "grab": "Grabbed",
+        "cook": "Cooked",
+        "read": "Read",
+        "dive": "Dived",
+        "organize": "Organized",
+        "splurge": "Splurged",
+        "stare": "Stared",
+        "clean": "Cleaned",
+        "attend": "Attended",
+        "power": "Powered",
+        "walk": "Went",
+        "pick": "Picked",
+        "order": "Ordered",
+        "watch": "Watched",
+        "play": "Played",
+        "get": "Got",
+        "visit": "Visited",
+        "meet": "Met",
+        "write": "Wrote",
+        "debug": "Debugged",
+        "sauté": "Sautéed",
+        "boil": "Boiled",
+        "have": "Had",
+        "put": "Put",
+        "browse": "Browsed",
+        "implement": "Implemented",
+        "refactor": "Refactored",
+        "hang": "Hung",
+        "bake": "Baked",
+        "call": "Called",
+        "share": "Shared",
+        "sit": "Sat",
+        "look": "Looked",
+        "question": "Questioned",
+        "accidentally": "Accidentally",
+        "raid": "Raided",
+        "try": "Tried",
+        "slowly": "Slowly",
+        "groan": "Groaned",
+        "pace": "Paced",
+        "lie": "Lay",
+        "pass": "Passed",
+        "crawl": "Crawled",
+        "screw": "Screwed",
+        "sleep": "Slept",
+        "work": "Worked",
+        "give": "Gave"
+      };
+
+      if (verbMap[firstWordLower]) {
+        words[0] = verbMap[firstWordLower];
+        return words.join(" ");
+      }
+      return str;
+    }
+
+    function getEmojiForText(text) {
+      if (!text) return "📝";
+      if (text === "Sleep Now") return "🛏️";
+      
+      const textLower = text.toLowerCase();
+      for (const [key, emoji] of Object.entries(emojiMap)) {
+        if (textLower.includes(key)) {
+          return emoji;
+        }
+      }
+      return "✦";
+    }
+
+    function getRecapForText(text) {
+      if (!text) return "";
+      if (overrides[text]) {
+        return overrides[text];
+      }
+      if (text === "Sleep Now") {
+        return "Got into bed";
+      }
+      return toPastTense(text);
+    }
+
     function isStage8Plus(nodeId) {
       return nodeId.startsWith('evening') || 
              nodeId.startsWith('dinner') || 
@@ -158,6 +379,86 @@
       return Math.floor(totalMin / 60);
     }
 
+    function getNextNodeBasedOnTimeAndVariables(nextNodeId, elapsed) {
+      const hour = getHourOfDay(elapsed);
+      
+      // 1. Time-based skipping to avoid chronos-mismatch
+      if (nextNodeId.startsWith("afternoon_slump") && hour >= 17) {
+        return state.variables.productivity > 0 ? "evening_coding" : "evening_stroll";
+      }
+      if ((nextNodeId.startsWith("afternoon_work") || nextNodeId.startsWith("afternoon_creative") || nextNodeId.startsWith("afternoon_gaming")) && hour >= 18) {
+        return "dinner_order_in";
+      }
+      if (nextNodeId.startsWith("evening_") && hour >= 21) {
+        return "dinner_healthy";
+      }
+      if (nextNodeId.startsWith("dinner_") && hour >= 22) {
+        return "night_reading";
+      }
+      if (nextNodeId.startsWith("night_") && hour >= 24) {
+        return "midnight_meditation";
+      }
+      if (nextNodeId.startsWith("late_night_") && hour >= 1) {
+        return "midnight_meditation";
+      }
+      if (nextNodeId.startsWith("midnight_") && hour >= 2) {
+        return "final_bedtime_prep";
+      }
+
+      // 2. Choice/Variable-based late-night branch routing
+      if (nextNodeId === "final_bedtime_prep" || nextNodeId === "absolute_limit") {
+        if (state.variables.caffeine) {
+          return "final_sugar_rush";
+        }
+        if (state.variables.exhaustion >= 3) {
+          return "final_stiff_back";
+        }
+        if (state.variables.productivity === 0 && state.variables.relaxation === 0) {
+          return "final_insomnia_panic";
+        }
+      }
+
+      return nextNodeId;
+    }
+
+    function getDynamicPrompt(nodeId, elapsed) {
+      const node = storyNodes[nodeId];
+      if (!node) return "";
+      
+      const hour = getHourOfDay(elapsed);
+      let prompt = node.prompt;
+      
+      if (nodeId === "night_movie" && hour < 17) {
+        return "It's still the afternoon, but you feel like closing the blinds and relaxing. How are you spending this time?";
+      }
+      if (nodeId === "night_coding_project" && hour < 18) {
+        return "You pull the curtains and block out the daylight, seeking ultimate coding focus.";
+      }
+      if (nodeId === "night_social_party" && hour < 18) {
+        return "It's still daytime, but you're already planning to meet up with friends in the city.";
+      }
+      if (nodeId === "late_night_tea" && hour < 20) {
+        return "You are back in your room, taking a moment to relax. How are you winding down?";
+      }
+      if (nodeId === "late_night_stargazing" && hour < 18) {
+        return "You look out the window at the bright sky, wishing for nightfall. What are you doing?";
+      }
+      if (nodeId === "midnight_meditation" && hour < 24 && hour >= 12) {
+        return "Even though it's not midnight yet, the house is dark and quiet. You should really sleep.";
+      }
+      if (nodeId === "midnight_snack_run" && hour < 24 && hour >= 12) {
+        return "You have a sudden craving. The kitchen is empty.";
+      }
+      if (nodeId === "final_bedtime_prep" && hour < 2 && hour >= 12) {
+        return "The clock is ticking down toward the 2 AM deadline. You should prepare for bed.";
+      }
+      if (nodeId === "final_insomnia_panic" && hour < 2 && hour >= 12) {
+        return "You are staring at the clock, wondering how you will get to sleep.";
+      }
+      
+      return prompt;
+    }
+
     function updateBackdropAndClock() {
       const elapsed = state.elapsed;
       const totalMinutes = START_CLOCK + elapsed;
@@ -177,6 +478,27 @@
       // Update progress bar
       let pct = Math.min(100, (elapsed / BUST_THRESHOLD) * 100);
       document.getElementById("progressBarFill").style.width = pct + "%";
+
+      // Check if curfew has passed
+      const lateMsg = document.getElementById("lateMessage");
+      const clockFrame = document.querySelector(".digital-clock-frame");
+      if (elapsed > BUST_THRESHOLD) {
+        if (lateMsg) {
+          lateMsg.style.display = "block";
+          const displayLateMin = START_CLOCK + elapsed;
+          lateMsg.innerHTML = `⚠️ You are officially late (${fmtTime(displayLateMin)}).`;
+        }
+        if (clockFrame) {
+          clockFrame.classList.add("late-warning");
+        }
+      } else {
+        if (lateMsg) {
+          lateMsg.style.display = "none";
+        }
+        if (clockFrame) {
+          clockFrame.classList.remove("late-warning");
+        }
+      }
 
       // Update room backdrop theme based on hour of day
       const hour = getHourOfDay(elapsed);
@@ -262,9 +584,30 @@
         return;
       }
 
+      let promptText = getDynamicPrompt(state.nodeId, state.elapsed);
+      if (isStage8Plus(state.nodeId)) {
+        let conditionText = "";
+        if (state.variables.caffeine) {
+          conditionText += " ☕ Your heart is still thumping from the caffeine you had earlier.";
+        }
+        if (state.variables.exhaustion >= 3) {
+          conditionText += " 🦴 Your muscles are aching from a very active day.";
+        } else if (state.variables.relaxation >= 3) {
+          conditionText += " 🧘 You feel centered and calm from a relaxing day.";
+        }
+        if (state.variables.productivity >= 3) {
+          conditionText += " 💻 You feel accomplished after getting so much done today.";
+        } else if (state.variables.productivity === 0 && state.elapsed > 600) {
+          conditionText += " 📱 You feel a slight sense of regret for not being very productive today.";
+        }
+        if (conditionText) {
+          promptText += `<span class="consequence-text">${conditionText}</span>`;
+        }
+      }
+
       let html = `
         <div class="node-segment">${getStageLabel(state.nodeId)}</div>
-        <p class="node-prompt">${node.prompt}</p>
+        <p class="node-prompt">${promptText}</p>
         <div class="options-list">
       `;
 
@@ -287,28 +630,62 @@
       const node = storyNodes[state.nodeId];
       const opt = node.options[idx];
 
+      // Track choice in history log before incrementing time
+      state.history.push({
+        time: state.elapsed,
+        text: opt.label,
+        duration: opt.minutes
+      });
+
+      // Analyze choices to update story variables
+      const labelLower = opt.label.toLowerCase();
+      const storyLower = opt.story.toLowerCase();
+      
+      if (labelLower.includes("coffee") || labelLower.includes("espresso") || labelLower.includes("caffeine") || storyLower.includes("coffee") || storyLower.includes("espresso")) {
+        state.variables.caffeine = true;
+      }
+      if (labelLower.includes("jog") || labelLower.includes("workout") || labelLower.includes("clean") || labelLower.includes("walk") || labelLower.includes("pace") || storyLower.includes("jog") || storyLower.includes("workout")) {
+        state.variables.exhaustion += 1;
+      }
+      if (labelLower.includes("code") || labelLower.includes("coding") || labelLower.includes("work") || labelLower.includes("study") || labelLower.includes("project") || labelLower.includes("programming")) {
+        state.variables.productivity += 1;
+      }
+      if (labelLower.includes("friend") || labelLower.includes("social") || labelLower.includes("party") || labelLower.includes("meet") || labelLower.includes("gossip") || labelLower.includes("chat")) {
+        state.variables.social += 1;
+      }
+      if (labelLower.includes("yoga") || labelLower.includes("stretch") || labelLower.includes("nap") || labelLower.includes("reading") || labelLower.includes("movie") || labelLower.includes("meditation") || labelLower.includes("stargazing")) {
+        state.variables.relaxation += 1;
+      }
+
       state.elapsed += opt.minutes;
       state.log.push(opt.story);
 
-      if (opt.ending || opt.bed) {
-        if (state.elapsed <= BUST_THRESHOLD) {
-          showEnding();
+      if (opt.ending) {
+        if (opt.bed) {
+          if (state.elapsed <= BUST_THRESHOLD) {
+            showEnding(true, "bed_on_time");
+          } else {
+            showEnding(false, "bad_sleep_schedule");
+          }
         } else {
-          showBusted();
+          showEnding(false, "slept_outside_bed");
         }
         return;
       }
 
-      if (state.elapsed >= BUST_THRESHOLD) {
-        showBusted();
-        return;
-      }
-
-      state.nodeId = opt.next;
+      // Dynamic routing to next node
+      state.nodeId = getNextNodeBasedOnTimeAndVariables(opt.next, state.elapsed);
       render();
     }
 
     function sleepNow() {
+      // Record choice in history
+      state.history.push({
+        time: state.elapsed,
+        text: "Sleep Now",
+        duration: 15
+      });
+
       // Transition to bed immediately
       state.elapsed += 15;
       state.log.push("You decided to wrap up your activities and went straight to bed.");
@@ -317,9 +694,9 @@
       if (sleepBtn) sleepBtn.classList.remove("visible");
 
       if (state.elapsed <= BUST_THRESHOLD) {
-        showEnding();
+        showEnding(true, "bed_on_time");
       } else {
-        showBusted();
+        showEnding(false, "bad_sleep_schedule");
       }
     }
 
@@ -331,18 +708,95 @@
       return "Balanced & Cozy 🧸";
     }
 
-    function showEnding() {
+    function showEnding(isWin, reason) {
       updateBackdropAndClock();
       
       const card = document.getElementById("mainCard");
       const historySection = document.getElementById("historySection");
       historySection.style.display = "none";
 
+      const sleepBtn = document.getElementById("sleepNowBtn");
+      if (sleepBtn) sleepBtn.classList.remove("visible");
+
+      let crest = "🏆";
+      let title = "";
+      let quote = "";
+      let message = "";
+      let crestClass = "success-crest";
+      let titleClass = "good";
+      let theme = "";
+
+      if (isWin && reason === "bed_on_time") {
+        crest = "🏆✨";
+        title = "PERFECT DAY";
+        quote = "No day is perfect, yet everyday is beautiful.";
+        message = "You successfully made it home, brushed your teeth, turned out the lights, and went to bed before curfew.";
+        crestClass = "success-crest";
+        titleClass = "good";
+        theme = "theme-night";
+      } else if (!isWin && reason === "bad_sleep_schedule") {
+        crest = "🌙⚠️";
+        title = "BAD SLEEP SCHEDULE";
+        quote = "You eventually made it to bed, but not before 2:00 AM.";
+        message = "You need a minimum of 4 hours of sleep before waking up at 6:00 AM.";
+        crestClass = "fail-crest";
+        titleClass = "bad";
+        theme = "theme-midnight";
+      } else if (!isWin && reason === "slept_outside_bed") {
+        crest = "🛋️💤";
+        title = "WRONG BED";
+        quote = "You didn't finish the day in bed!";
+        message = "To win the game, you must be in bed.";
+        crestClass = "fail-crest";
+        titleClass = "bad";
+        theme = "theme-midnight";
+      }
+
+      // Force room theme background and body class
+      document.body.className = theme;
+      const themes = ["morning", "afternoon", "evening", "night", "midnight"];
+      const targetTheme = theme.replace("theme-", "");
+      themes.forEach(t => {
+        const layer = document.getElementById(`backdrop-${t}`);
+        if (layer) {
+          if (t === targetTheme) {
+            layer.classList.add("active");
+          } else {
+            layer.classList.remove("active");
+          }
+        }
+      });
+
+      // Construct history timeline HTML
+      let timelineHtml = `<div class="timeline-container">`;
+      timelineHtml += `
+        <div class="timeline-item">
+          <span class="timeline-time">06:00 AM</span>
+          <span class="timeline-emoji">⏰</span>
+          <span class="timeline-text">Alarm rang</span>
+        </div>
+      `;
+
+      state.history.forEach(item => {
+        const displayTime = START_CLOCK + item.time;
+        const formattedTime = fmtTime(displayTime);
+        const emoji = getEmojiForText(item.text);
+        const recapText = getRecapForText(item.text);
+        timelineHtml += `
+          <div class="timeline-item">
+            <span class="timeline-time">${formattedTime}</span>
+            <span class="timeline-emoji">${emoji}</span>
+            <span class="timeline-text">${recapText}</span>
+          </div>
+        `;
+      });
+      timelineHtml += `</div>`;
+
       const bedtimeStr = fmtTime(START_CLOCK + state.elapsed);
       card.innerHTML = `
         <div class="ending-wrapper">
-          <div class="ending-crest success-crest">🌙✨</div>
-          <div class="ending-title good">Perfect Day Completed!</div>
+          <div class="ending-crest ${crestClass}">${crest}</div>
+          <div class="ending-title ${titleClass}">${title}</div>
           
           <div class="stats-grid">
             <div class="stat-card">
@@ -352,87 +806,24 @@
             </div>
             <div class="stat-card">
               <span class="stat-icon">🧭</span>
-              <span class="stat-label">Activities Done</span>
-              <span class="stat-value">${state.log.length} events</span>
+              <span class="stat-label">Events</span>
+              <span class="stat-value">${state.history.length} events</span>
             </div>
             <div class="stat-card">
               <span class="stat-icon">🔋</span>
-              <span class="stat-label">Final Status</span>
+              <span class="stat-label">Status</span>
               <span class="stat-value">${getCharacterStatus(state.nodeId)}</span>
             </div>
           </div>
 
           <div class="ending-body">
-            <div class="diary-title">📜 Daily Log</div>
-            <ul class="diary-list">
-              ${state.log.map(item => `<li><span class="diary-bullet">✦</span> <span>${item}</span></li>`).join("")}
-            </ul>
-            <p class="ending-info">You successfully made it home, brushed your teeth, turned out the lights, and went to bed before curfew.</p>
-            <div class="ending-quote">"No day is perfect, yet every day is beautiful."</div>
+            <div class="diary-title ${isWin ? '' : 'warning'}">📜 Your Day's Timeline</div>
+            ${timelineHtml}
+            <p class="ending-info ${isWin ? '' : 'warning'}">${message}</p>
+            <div class="ending-quote ${titleClass === 'bad' ? 'bad' : ''}">"${quote}"</div>
           </div>
           
-          <button class="restart-btn" onclick="restart()">↻ Live another day</button>
-        </div>
-      `;
-    }
-
-    function showBusted() {
-      const card = document.getElementById("mainCard");
-      const historySection = document.getElementById("historySection");
-      historySection.style.display = "none";
-
-      // Force background to midnight style
-      document.body.className = "theme-midnight";
-      const layers = ["morning", "afternoon", "evening", "night", "midnight"];
-      layers.forEach(t => {
-        const layer = document.getElementById(`backdrop-${t}`);
-        if (layer) {
-          if (t === "midnight") {
-            layer.classList.add("active");
-          } else {
-            layer.classList.remove("active");
-          }
-        }
-      });
-
-      document.getElementById("clockHours").textContent = "02";
-      document.getElementById("clockMinutes").textContent = "00";
-      document.getElementById("clockPeriod").textContent = "AM";
-      document.getElementById("progressBarFill").style.width = "100%";
-
-      card.innerHTML = `
-        <div class="ending-wrapper">
-          <div class="ending-crest fail-crest">⏳💥</div>
-          <div class="ending-title bad">Schedule Overrun!</div>
-          
-          <div class="stats-grid">
-            <div class="stat-card">
-              <span class="stat-icon">⏰</span>
-              <span class="stat-label">Curfew Status</span>
-              <span class="stat-value" style="color: var(--accent-rose)">MISSED!</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-icon">🧭</span>
-              <span class="stat-label">Activities Done</span>
-              <span class="stat-value">${state.log.length} events</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-icon">🔋</span>
-              <span class="stat-label">Final Status</span>
-              <span class="stat-value" style="color: var(--accent-rose)">Exhausted 💤</span>
-            </div>
-          </div>
-
-          <div class="ending-body">
-            <div class="diary-title warning">📜 Journey Path</div>
-            <ul class="diary-list">
-              ${state.log.map(item => `<li><span class="diary-bullet warning">✦</span> <span>${item}</span></li>`).join("")}
-            </ul>
-            <p class="ending-info warning">Curfew is strictly at <strong>2:00 AM</strong>. You got carried away and didn't make it to bed in time.</p>
-            <div class="ending-quote bad">"Time slips away like water, and curfew waits for no one."</div>
-          </div>
-          
-          <button class="restart-btn bad" onclick="restart()">↻ Try again from 6:00 AM</button>
+          <button class="restart-btn ${isWin ? '' : 'bad'}" onclick="restart()">↻ ${isWin ? 'Live another day' : 'Start again'}</button>
         </div>
       `;
     }
@@ -441,7 +832,15 @@
       state = {
         nodeId: "alarm",
         elapsed: 0,
-        log: []
+        log: [],
+        history: [],
+        variables: {
+          caffeine: false,
+          exhaustion: 0,
+          productivity: 0,
+          social: 0,
+          relaxation: 0
+        }
       };
       render();
     }
